@@ -56,8 +56,8 @@ export default function DashboardPage() {
         <div className="min-h-screen bg-[#0a0a0c] text-white font-sans">
             {/* Sidebar / Nav */}
             <nav className="fixed left-0 top-0 h-full w-20 md:w-64 bg-white/5 border-r border-white/10 flex flex-col items-center py-8 z-50">
-                <div className="text-2xl font-black mb-12 bg-gradient-to-r from-blue-400 to-purple-600 bg-clip-text text-transparent hidden md:block">
-                    SCRAPPER
+                <div className="text-2xl font-black mb-12 bg-gradient-to-r from-blue-400 to-purple-600 bg-clip-text text-transparent hidden md:block uppercase tracking-tighter">
+                    CAREERPILOT
                 </div>
                 <div className="space-y-4 w-full px-4">
                     <Link href="/dashboard" className="flex items-center gap-4 p-4 bg-white/10 rounded-2xl text-blue-400 font-bold transition-all w-full">

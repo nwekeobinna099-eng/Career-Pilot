@@ -3,12 +3,12 @@ import FileUpload from '@/components/FileUpload'
 
 export default function ProfilePage() {
     return (
-        <main className="min-h-screen bg-[#0a0a0c] py-12 px-4 selection:bg-blue-500/30">
-            <div className="max-w-4xl mx-auto mb-12 text-center">
-                <h1 className="text-4xl md:text-5xl font-black mb-4 bg-gradient-to-r from-white via-white to-white/40 bg-clip-text text-transparent">
+        <main className="min-h-screen bg-background py-24 px-4 selection:bg-primary/30">
+            <div className="max-w-4xl mx-auto mb-16 text-center">
+                <h1 className="text-5xl md:text-7xl font-black mb-6 bg-gradient-to-b from-white to-white/40 bg-clip-text text-transparent uppercase tracking-tight">
                     Universal Profile
                 </h1>
-                <p className="text-white/60 text-lg max-w-2xl mx-auto">
+                <p className="text-muted text-xl max-w-2xl mx-auto font-medium leading-relaxed">
                     Keep your base experience and certifications up to date. We use this information to tailor every application you make.
                 </p>
             </div>

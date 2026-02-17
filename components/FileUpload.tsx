@@ -57,8 +57,8 @@ export default function FileUpload({ onUploadComplete }: { onUploadComplete: (ur
                     className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10 disabled:cursor-not-allowed"
                 />
                 <div className={`
-          border-2 border-dashed rounded-2xl p-8 flex flex-col items-center justify-center transition-all
-          ${uploading ? 'bg-blue-500/5 border-blue-500/50' : 'bg-white/5 border-white/10 group-hover:bg-white/10 group-hover:border-white/20'}
+          border-2 border-dashed rounded-[2rem] p-10 flex flex-col items-center justify-center transition-all glass
+          ${uploading ? 'bg-primary/5 border-primary/50' : 'border-white/10 hover:bg-white/5 hover:border-white/20'}
           ${error ? 'border-red-500/50 bg-red-500/5' : ''}
         `}>
                     {uploading ? (

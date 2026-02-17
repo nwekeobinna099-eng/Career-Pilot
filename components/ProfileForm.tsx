@@ -65,8 +65,8 @@ export default function ProfileForm() {
     }
 
     return (
-        <div className="max-w-4xl mx-auto p-6 bg-white/10 backdrop-blur-md rounded-2xl shadow-xl border border-white/20 text-white">
-            <h2 className="text-3xl font-bold mb-8 bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent">
+        <div className="max-w-4xl mx-auto p-12 glass rounded-[3rem] shadow-2xl border border-white/5 text-white">
+            <h2 className="text-4xl font-black mb-10 bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent uppercase tracking-tight">
                 Personal Profile
             </h2>
 

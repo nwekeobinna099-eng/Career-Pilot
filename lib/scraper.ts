@@ -65,3 +65,16 @@ export async function scrapeLinkedIn(searchQuery: string): Promise<JobListing[]>
     // Basic placeholder for LinkedIn - LinkedIn is much harder due to auth/bot detection
     return []
 }
+
+export async function scrapeJobs(query: string, location: string, platform: string = 'indeed'): Promise<JobListing[]> {
+    switch (platform.toLowerCase()) {
+        case 'linkedin':
+            return scrapeLinkedIn(query)
+        case 'glassdoor':
+            // Placeholder for Glassdoor
+            return []
+        case 'indeed':
+        default:
+            return scrapeIndeed(query, location)
+    }
+}

@@ -101,7 +101,7 @@ export default function DashboardPage() {
                             <h1 className="text-4xl font-black tracking-tight mb-3">Live Opportunities</h1>
                             <p className="text-muted font-medium flex items-center gap-2">
                                 <span className="flex h-2 w-2 rounded-full bg-green-500 animate-pulse" />
-                                Monitoring {jobs.length} relevant listings across 3 platforms
+                                Monitoring {jobs.length} relevant listings across {Array.from(new Set(jobs.map(j => j.platform))).length || 3} platforms
                             </p>
                         </div>
 

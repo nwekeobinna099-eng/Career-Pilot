@@ -10,6 +10,8 @@ export default function DashboardPage() {
     const [jobs, setJobs] = useState<any[]>([])
     const [loading, setLoading] = useState(true)
     const [refreshing, setRefreshing] = useState(false)
+    const [searchQuery, setSearchQuery] = useState('Software Engineer')
+    const [locationQuery, setLocationQuery] = useState('Dublin')
 
     const fetchJobs = async () => {
         setLoading(true)
@@ -39,7 +41,8 @@ export default function DashboardPage() {
         try {
             await fetch('/api/scrape', {
                 method: 'POST',
-                body: JSON.stringify({ query: 'Software Engineer', location: 'Dublin' })
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ query: searchQuery, location: locationQuery })
             })
             await fetchJobs()
         } catch (e) {
@@ -72,14 +75,37 @@ export default function DashboardPage() {
                         <h1 className="text-4xl font-black tracking-tight mb-2">Job Opportunities</h1>
                         <p className="text-white/40">Track and tailor your applications in one place.</p>
                     </div>
-                    <button
-                        onClick={handleScrape}
-                        disabled={refreshing}
-                        className="flex items-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-500 rounded-xl font-bold shadow-lg shadow-blue-500/20 transition-all disabled:opacity-50"
-                    >
-                        <RefreshCcw size={18} className={refreshing ? 'animate-spin' : ''} />
-                        {refreshing ? 'Scraping...' : 'Fetch New Jobs'}
-                    </button>
+                    <div className="flex flex-col md:flex-row gap-4 w-full md:w-auto">
+                        <div className="flex bg-white/5 border border-white/10 rounded-xl overflow-hidden focus-within:ring-2 focus-within:ring-blue-500 transition-all">
+                            <div className="flex items-center pl-4 text-white/40">
+                                <Search size={18} />
+                            </div>
+                            <input
+                                type="text"
+                                placeholder="Job Title"
+                                className="bg-transparent border-none px-4 py-3 text-sm focus:outline-none w-full md:w-48"
+                                value={searchQuery}
+                                onChange={(e) => setSearchQuery(e.target.value)}
+                            />
+                        </div>
+                        <div className="flex bg-white/5 border border-white/10 rounded-xl overflow-hidden focus-within:ring-2 focus-within:ring-blue-500 transition-all">
+                            <input
+                                type="text"
+                                placeholder="Location"
+                                className="bg-transparent border-none px-4 py-3 text-sm focus:outline-none w-full md:w-40"
+                                value={locationQuery}
+                                onChange={(e) => setLocationQuery(e.target.value)}
+                            />
+                        </div>
+                        <button
+                            onClick={handleScrape}
+                            disabled={refreshing}
+                            className="flex items-center justify-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-500 rounded-xl font-bold shadow-lg shadow-blue-500/20 transition-all disabled:opacity-50 min-w-[140px]"
+                        >
+                            <RefreshCcw size={18} className={refreshing ? 'animate-spin' : ''} />
+                            {refreshing ? 'Scraping...' : 'Fetch Jobs'}
+                        </button>
+                    </div>
                 </header>
 
                 {loading ? (

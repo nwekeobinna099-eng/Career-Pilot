@@ -12,6 +12,7 @@ export default function DashboardPage() {
     const [refreshing, setRefreshing] = useState(false)
     const [searchQuery, setSearchQuery] = useState('Software Engineer')
     const [locationQuery, setLocationQuery] = useState('Dublin')
+    const [platform, setPlatform] = useState('indeed')
 
     const fetchJobs = async () => {
         setLoading(true)
@@ -42,7 +43,7 @@ export default function DashboardPage() {
             await fetch('/api/scrape', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ query: searchQuery, location: locationQuery })
+                body: JSON.stringify({ query: searchQuery, location: locationQuery, platform })
             })
             await fetchJobs()
         } catch (e) {
@@ -96,6 +97,17 @@ export default function DashboardPage() {
                                 value={locationQuery}
                                 onChange={(e) => setLocationQuery(e.target.value)}
                             />
+                        </div>
+                        <div className="flex bg-white/5 border border-white/10 rounded-xl overflow-hidden focus-within:ring-2 focus-within:ring-blue-500 transition-all">
+                            <select
+                                className="bg-transparent border-none px-4 py-3 text-sm focus:outline-none w-full md:w-40 text-white/80 cursor-pointer appearance-none"
+                                value={platform}
+                                onChange={(e) => setPlatform(e.target.value)}
+                            >
+                                <option value="indeed" className="bg-[#1a1a1c]">Indeed</option>
+                                <option value="linkedin" className="bg-[#1a1a1c]">LinkedIn</option>
+                                <option value="glassdoor" className="bg-[#1a1a1c]">Glassdoor</option>
+                            </select>
                         </div>
                         <button
                             onClick={handleScrape}

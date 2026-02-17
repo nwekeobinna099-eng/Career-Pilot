@@ -1,22 +1,22 @@
 import { NextResponse } from 'next/server'
-import { scrapeIndeed } from '@/lib/scraper'
+import { scrapeJobs } from '@/lib/scraper'
 import { supabase } from '@/lib/supabaseClient'
 
 export async function POST(req: Request) {
     try {
-        const { query, location } = await req.json()
+        const { query, location, platform } = await req.json()
 
         if (!query) {
             return NextResponse.json({ error: 'Query is required' }, { status: 400 })
         }
 
-        const jobs = await scrapeIndeed(query, location)
+        const jobs = await scrapeJobs(query, location, platform)
 
         // Save jobs to Supabase
         if (jobs.length > 0) {
             const { error } = await supabase
                 .from('jobs')
-                .insert(jobs.map(j => ({
+                .insert(jobs.map((j: any) => ({
                     title: j.title,
                     company: j.company,
                     description: j.description,

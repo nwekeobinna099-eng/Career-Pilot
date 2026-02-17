@@ -4,13 +4,13 @@ import { supabase } from '@/lib/supabaseClient'
 
 export async function POST(req: Request) {
     try {
-        const { query, location, platform } = await req.json()
+        const { query, location, platform, dateFilter } = await req.json()
 
         if (!query) {
             return NextResponse.json({ error: 'Query is required' }, { status: 400 })
         }
 
-        const jobs = await scrapeJobs(query, location, platform)
+        const jobs = await scrapeJobs(query, location, platform, dateFilter)
 
         // Save jobs to Supabase
         if (jobs.length > 0) {

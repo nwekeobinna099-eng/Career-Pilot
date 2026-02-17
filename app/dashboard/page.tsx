@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabaseClient'
 import JobCard from '@/components/JobCard'
-import { LayoutDashboard, Briefcase, User, Search, RefreshCcw, Bell, Settings, LogOut, ChevronRight, Filter, Zap } from 'lucide-react'
+import { LayoutDashboard, Briefcase, User, Search, RefreshCcw, Bell, Settings, LogOut, ChevronRight, Filter, Zap, Clock } from 'lucide-react'
 import Link from 'next/link'
 
 export default function DashboardPage() {
@@ -13,6 +13,7 @@ export default function DashboardPage() {
     const [searchQuery, setSearchQuery] = useState('Software Engineer')
     const [locationQuery, setLocationQuery] = useState('Dublin')
     const [platform, setPlatform] = useState('indeed')
+    const [dateFilter, setDateFilter] = useState('all')
 
     const fetchJobs = async () => {
         setLoading(true)
@@ -40,7 +41,7 @@ export default function DashboardPage() {
             await fetch('/api/scrape', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ query: searchQuery, location: locationQuery, platform })
+                body: JSON.stringify({ query: searchQuery, location: locationQuery, platform, dateFilter })
             })
             await fetchJobs()
         } catch (e) {
@@ -126,7 +127,19 @@ export default function DashboardPage() {
                                 >
                                     <option value="indeed" className="bg-slate-900">Indeed</option>
                                     <option value="linkedin" className="bg-slate-900">LinkedIn</option>
-                                    <option value="glassdoor" className="bg-slate-900">Glassdoor</option>
+                                </select>
+                            </div>
+                            <div className="glass flex items-center px-4 py-3 rounded-2xl border border-white/10 focus-within:ring-2 focus-within:ring-primary/50 transition-all">
+                                <Clock size={18} className="text-muted mr-3" />
+                                <select
+                                    className="bg-transparent border-none text-sm focus:outline-none text-white/80 cursor-pointer appearance-none pr-8 font-bold"
+                                    value={dateFilter}
+                                    onChange={(e) => setDateFilter(e.target.value)}
+                                >
+                                    <option value="all" className="bg-slate-900">Any Time</option>
+                                    <option value="24h" className="bg-slate-900">Past 24 Hours</option>
+                                    <option value="3d" className="bg-slate-900">Past 3 Days</option>
+                                    <option value="7d" className="bg-slate-900">Past Week</option>
                                 </select>
                             </div>
                             <button

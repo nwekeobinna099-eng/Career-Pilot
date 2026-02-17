@@ -1,3 +1,5 @@
+'use client'
+
 import ProfileForm from '@/components/ProfileForm'
 import FileUpload from '@/components/FileUpload'
 

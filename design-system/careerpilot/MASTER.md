@@ -7,8 +7,8 @@
 ---
 
 **Project:** CareerPilot
-**Generated:** 2026-02-17 10:18:58
-**Category:** Job Board/Recruitment
+**Generated:** 2026-02-19 20:47:48
+**Category:** Smart Home/IoT Dashboard
 
 ---
 
@@ -18,13 +18,13 @@
 
 | Role | Hex | CSS Variable |
 |------|-----|--------------|
-| Primary | `#2563EB` | `--color-primary` |
-| Secondary | `#3B82F6` | `--color-secondary` |
-| CTA/Accent | `#F97316` | `--color-cta` |
-| Background | `#EFF6FF` | `--color-background` |
-| Text | `#1E40AF` | `--color-text` |
+| Primary | `#0F172A` | `--color-primary` |
+| Secondary | `#1E293B` | `--color-secondary` |
+| CTA/Accent | `#22C55E` | `--color-cta` |
+| Background | `#020617` | `--color-background` |
+| Text | `#F8FAFC` | `--color-text` |
 
-**Color Notes:** Tracking blue + delivery orange
+**Color Notes:** Dark bg + green positive indicators
 
 ### Typography
 
@@ -68,7 +68,7 @@
 ```css
 /* Primary Button */
 .btn-primary {
-  background: #F97316;
+  background: #22C55E;
   color: white;
   padding: 12px 24px;
   border-radius: 8px;
@@ -85,8 +85,8 @@
 /* Secondary Button */
 .btn-secondary {
   background: transparent;
-  color: #2563EB;
-  border: 2px solid #2563EB;
+  color: #0F172A;
+  border: 2px solid #0F172A;
   padding: 12px 24px;
   border-radius: 8px;
   font-weight: 600;
@@ -99,7 +99,7 @@
 
 ```css
 .card {
-  background: #EFF6FF;
+  background: #020617;
   border-radius: 12px;
   padding: 24px;
   box-shadow: var(--shadow-md);
@@ -125,9 +125,9 @@
 }
 
 .input:focus {
-  border-color: #2563EB;
+  border-color: #0F172A;
   outline: none;
-  box-shadow: 0 0 0 3px #2563EB20;
+  box-shadow: 0 0 0 3px #0F172A20;
 }
 ```
 
@@ -153,13 +153,13 @@
 
 ## Style Guidelines
 
-**Style:** User Behavior Analytics
+**Style:** Dark Mode (OLED)
 
-**Keywords:** Funnel visualization, user flow diagrams, conversion tracking, engagement metrics, user journey mapping, cohort analysis
+**Keywords:** Dark theme, low light, high contrast, deep black, midnight blue, eye-friendly, OLED, night mode, power efficient
 
-**Best For:** Conversion funnel analysis, user journey tracking, engagement analytics, cohort analysis, retention tracking
+**Best For:** Night-mode apps, coding platforms, entertainment, eye-strain prevention, OLED devices, low-light
 
-**Key Effects:** Funnel animation (fill-down), flow diagram animations (connection draw), conversion pulse, engagement bar fill
+**Key Effects:** Minimal glow (text-shadow: 0 0 10px), dark-to-light transitions, low white emission, high readability, visible focus
 
 ### Page Pattern
 
@@ -176,8 +176,8 @@
 
 ## Anti-Patterns (Do NOT Use)
 
-- ❌ Outdated forms
-- ❌ Hidden filters
+- ❌ Slow updates
+- ❌ No automation
 
 ### Additional Forbidden Patterns
 

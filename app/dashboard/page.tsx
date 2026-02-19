@@ -156,11 +156,11 @@ export default function DashboardPage() {
             {/* Main Content */}
 
             {/* Main Content */}
-            <main className="flex-1 pl-20 lg:pl-72 min-h-screen">
-                <div className="max-w-[1600px] mx-auto p-8 lg:p-12">
+            <main className="flex-1 pl-0 lg:pl-72 min-h-screen pt-16 lg:pt-0 transition-all duration-300">
+                <div className="max-w-[1600px] mx-auto p-6 lg:p-12">
 
                     {/* Header HUD */}
-                    <header className="flex flex-col xl:flex-row justify-between items-start xl:items-center mb-12 gap-8">
+                    <header className="flex flex-col xl:flex-row justify-between items-start xl:items-center mb-8 lg:mb-12 gap-6 lg:gap-8">
                         <div>
                             <h1 className="text-4xl font-black tracking-tight mb-3">Live Opportunities</h1>
                             <p className="text-muted font-medium flex items-center gap-2">

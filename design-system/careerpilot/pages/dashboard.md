@@ -1,7 +1,7 @@
 # Dashboard Page Overrides
 
 > **PROJECT:** CareerPilot
-> **Generated:** 2026-02-17 10:18:58
+> **Generated:** 2026-02-19 20:47:48
 > **Page Type:** Dashboard / Data View
 
 > ⚠️ **IMPORTANT:** Rules in this file **override** the Master file (`design-system/MASTER.md`).
@@ -31,9 +31,9 @@
 
 ### Component Overrides
 
-- Avoid: Static element until pinch
-- Avoid: Single row actions only
-- Avoid: Auto-play high-res video loops
+- Avoid: Desktop-first causing mobile issues
+- Avoid: Wide tables breaking layout
+- Avoid: Missing or incorrect viewport
 
 ---
 
@@ -45,8 +45,8 @@
 
 ## Recommendations
 
-- Effects: Funnel animation (fill-down), flow diagram animations (connection draw), conversion pulse, engagement bar fill
-- Spatial UI: Scale/highlight element on look
-- Data Entry: Allow multi-select and bulk edit
-- Sustainability: Click-to-play or pause when off-screen
+- Effects: Minimal glow (text-shadow: 0 0 10px), dark-to-light transitions, low white emission, high readability, visible focus
+- Responsive: Start with mobile styles then add breakpoints
+- Responsive: Use horizontal scroll or card layout
+- Responsive: Use width=device-width initial-scale=1
 - CTA Placement: Floating Sticky CTA or End of Horizontal Track

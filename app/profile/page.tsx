@@ -11,7 +11,7 @@ export default function ProfilePage() {
     const [parsedData, setParsedData] = useState<any>(null)
 
     return (
-        <div className="min-h-screen bg-background text-foreground flex font-sans overflow-hidden">
+        <div className="min-h-screen bg-background text-foreground flex font-sans overflow-x-hidden">
             <Sidebar />
 
             <main className="flex-1 pl-0 lg:pl-72 min-h-screen pt-16 lg:pt-0 transition-all duration-300 overflow-y-auto">
@@ -26,7 +26,7 @@ export default function ProfilePage() {
                 </div>
 
                 <div className="max-w-4xl mx-auto mb-16 text-center">
-                    <h1 className="text-5xl md:text-7xl font-black mb-6 bg-gradient-to-b from-white to-white/40 bg-clip-text text-transparent uppercase tracking-tight">
+                    <h1 className="text-4xl md:text-7xl font-black mb-6 bg-gradient-to-b from-white to-white/40 bg-clip-text text-transparent uppercase tracking-tight">
                         Universal Profile
                     </h1>
                     <p className="text-muted text-xl max-w-2xl mx-auto font-medium leading-relaxed">

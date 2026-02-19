@@ -177,15 +177,15 @@ export default function ProfileForm({ externalData }: { externalData?: any }) {
 
     if (loading) {
         return (
-            <div className="max-w-4xl mx-auto p-12 glass rounded-[3rem] shadow-2xl border border-white/5 text-white flex items-center justify-center min-h-[400px]">
+            <div className="max-w-4xl mx-auto p-6 lg:p-12 glass rounded-2xl lg:rounded-[3rem] shadow-2xl border border-white/5 text-white flex items-center justify-center min-h-[400px]">
                 <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
             </div>
         )
     }
 
     return (
-        <div className="max-w-4xl mx-auto p-12 glass rounded-[3rem] shadow-2xl border border-white/5 text-white">
-            <h2 className="text-4xl font-black mb-10 bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent uppercase tracking-tight">
+        <div className="max-w-4xl mx-auto p-6 lg:p-12 glass rounded-2xl lg:rounded-[3rem] shadow-2xl border border-white/5 text-white">
+            <h2 className="text-2xl lg:text-4xl font-black mb-8 lg:mb-10 bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent uppercase tracking-tight">
                 Personal Profile
             </h2>
 
@@ -451,15 +451,15 @@ export default function ProfileForm({ externalData }: { externalData?: any }) {
                     <button
                         onClick={handleSave}
                         disabled={saving}
-                        className="flex-1 py-5 bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 rounded-2xl font-black text-xl flex items-center justify-center gap-3 shadow-2xl shadow-primary/30 transition-all transform hover:scale-[1.01] active:scale-[0.99] disabled:opacity-50 disabled:cursor-not-allowed group"
+                        className="flex-1 py-4 lg:py-5 bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 rounded-xl lg:rounded-2xl font-black text-lg lg:text-xl flex items-center justify-center gap-3 shadow-2xl shadow-primary/30 transition-all transform hover:scale-[1.01] active:scale-[0.99] disabled:opacity-50 disabled:cursor-not-allowed group"
                     >
                         <Save size={24} className={`${saving ? 'animate-spin' : 'group-hover:scale-110 transition-transform'}`} />
-                        {saving ? 'UPDATING PROFILE...' : 'SAVE PROFILE'}
+                        {saving ? 'UPDATING...' : 'SAVE PROFILE'}
                     </button>
 
                     <a
                         href="/dashboard"
-                        className="py-5 px-8 glass hover:bg-white/10 rounded-2xl font-black text-xl flex items-center justify-center gap-3 transition-all transform hover:scale-[1.01] active:scale-[0.99] uppercase text-white/60 hover:text-white"
+                        className="py-4 lg:py-5 px-8 glass hover:bg-white/10 rounded-xl lg:rounded-2xl font-black text-lg lg:text-xl flex items-center justify-center gap-3 transition-all transform hover:scale-[1.01] active:scale-[0.99] uppercase text-white/60 hover:text-white"
                     >
                         Dashboard
                     </a>

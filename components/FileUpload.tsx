@@ -105,10 +105,10 @@ export default function FileUpload({
                     className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10 disabled:cursor-not-allowed"
                 />
                 <div className={`
-          border-2 border-dashed rounded-[2rem] p-10 flex flex-col items-center justify-center transition-all glass
-          ${uploading ? 'bg-primary/5 border-primary/50' : 'border-white/10 hover:bg-white/5 hover:border-white/20'}
-          ${error ? 'border-red-500/50 bg-red-500/5' : ''}
-        `}>
+                    border-2 border-dashed rounded-xl lg:rounded-[2rem] p-6 lg:p-10 flex flex-col items-center justify-center transition-all glass
+                    ${uploading ? 'bg-primary/5 border-primary/50' : 'border-white/10 hover:bg-white/5 hover:border-white/20'}
+                    ${error ? 'border-red-500/50 bg-red-500/5' : ''}
+                `}>
                     {uploading ? (
                         <>
                             <Loader2 className="animate-spin text-blue-500 mb-3" size={32} />

@@ -1,7 +1,7 @@
 'use client'
 
 import React from 'react'
-import { LayoutDashboard, Briefcase, User, Bell, Settings, LogOut, BarChart3, Menu, X } from 'lucide-react'
+import { LayoutDashboard, Briefcase, User, Bell, Settings, LogOut, BarChart3, Menu, X, Zap } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
@@ -23,6 +23,7 @@ export default function Sidebar() {
         { icon: <BarChart3 size={22} />, label: 'Career Analytics', href: '/analytics' },
         { icon: <User size={22} />, label: 'Universal Profile', href: '/profile' },
         { icon: <Bell size={22} />, label: 'Alerts', href: '/alerts' },
+        { icon: <Zap size={22} />, label: 'Plans', href: '/plans' },
     ]
 
     const NavContent = () => (

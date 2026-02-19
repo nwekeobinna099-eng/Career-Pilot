@@ -78,10 +78,10 @@ export default function SettingsPage() {
         <div className="min-h-screen bg-background text-foreground flex font-sans overflow-hidden">
             <Sidebar />
 
-            <main className="flex-1 pl-20 lg:pl-72 h-screen overflow-y-auto">
-                <div className="max-w-4xl mx-auto p-8 lg:p-12">
-                    <header className="mb-12 flex flex-col md:flex-row md:items-end justify-between gap-6">
-                        <div>
+            <main className="flex-1 pl-0 lg:pl-72 min-h-screen pt-16 lg:pt-0 transition-all duration-300 overflow-y-auto">
+                <div className="max-w-4xl mx-auto p-6 lg:p-12">
+                    <header className="mb-8 lg:mb-12 flex flex-col md:flex-row md:items-end justify-between gap-6 text-center md:text-left">
+                        <div className="w-full md:w-auto">
                             <h1 className="text-4xl font-black tracking-tight mb-3 text-white uppercase">Profile & Control</h1>
                             <p className="text-muted font-medium">Calibrate your AI flight systems and security parameters.</p>
                         </div>

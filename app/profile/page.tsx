@@ -14,8 +14,8 @@ export default function ProfilePage() {
         <div className="min-h-screen bg-background text-foreground flex font-sans overflow-hidden">
             <Sidebar />
 
-            <main className="flex-1 pl-20 lg:pl-72 h-screen overflow-y-auto">
-                <div className="max-w-4xl mx-auto p-8 lg:p-12 mb-12">
+            <main className="flex-1 pl-0 lg:pl-72 min-h-screen pt-16 lg:pt-0 transition-all duration-300 overflow-y-auto">
+                <div className="max-w-4xl mx-auto p-6 lg:p-12 mb-6 lg:mb-12 text-center md:text-left">
                     <Link
                         href="/dashboard"
                         className="inline-flex items-center gap-2 text-muted hover:text-primary transition-all font-black text-xs uppercase tracking-[0.2em] group"
@@ -37,7 +37,7 @@ export default function ProfilePage() {
                 <div className="grid grid-cols-1 gap-12">
                     <section className="max-w-4xl mx-auto w-full">
                         <FileUpload
-                            onUploadComplete={() => {}}
+                            onUploadComplete={() => { }}
                             onParsed={(data) => setParsedData(data)}
                         />
                     </section>

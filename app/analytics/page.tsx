@@ -100,14 +100,14 @@ export default function AnalyticsPage() {
         <div className="min-h-screen bg-background text-foreground flex font-sans overflow-hidden">
             <Sidebar />
 
-            <main className="flex-1 pl-20 lg:pl-72 h-screen overflow-y-auto">
-                <div className="max-w-6xl mx-auto p-8 lg:p-12">
-                    <header className="mb-12 flex flex-col md:flex-row md:items-end justify-between gap-6">
+            <main className="flex-1 pl-0 lg:pl-72 min-h-screen pt-16 lg:pt-0 transition-all duration-300 overflow-y-auto">
+                <div className="max-w-6xl mx-auto p-6 lg:p-12">
+                    <header className="mb-8 lg:mb-12 flex flex-col md:flex-row md:items-end justify-between gap-6 text-center md:text-left">
                         <div>
                             <h1 className="text-4xl font-black tracking-tight mb-3 text-white uppercase">Career Analytics</h1>
                             <p className="text-muted font-medium">Data-driven insights into your professional ascent.</p>
                         </div>
-                        <div className="flex gap-3">
+                        <div className="flex gap-3 justify-center md:justify-end w-full md:w-auto">
                             <button className="px-6 py-3 bg-white/5 border border-white/10 rounded-2xl text-xs font-black uppercase tracking-widest text-white hover:bg-white/10 transition-all cursor-pointer">
                                 Export Data
                             </button>

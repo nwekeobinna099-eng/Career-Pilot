@@ -231,9 +231,9 @@ export default function ApplicationsPage() {
             {/* Main Content */}
 
             {/* Main Content */}
-            <main className="flex-1 pl-20 lg:pl-72 h-screen overflow-y-auto">
-                <div className="max-w-[1200px] mx-auto p-8 lg:p-12">
-                    <header className="mb-12">
+            <main className="flex-1 pl-0 lg:pl-72 min-h-screen pt-16 lg:pt-0 transition-all duration-300 overflow-y-auto">
+                <div className="max-w-[1200px] mx-auto p-6 lg:p-12">
+                    <header className="mb-8 lg:mb-12 text-center md:text-left">
                         <h1 className="text-4xl font-black tracking-tight mb-3 text-white">My Applications</h1>
                         <p className="text-muted font-medium">Manage and view your tailored CVs and cover letters.</p>
                     </header>

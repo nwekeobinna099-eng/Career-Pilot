@@ -94,15 +94,15 @@ export default function AlertsPage() {
         <div className="min-h-screen bg-background text-foreground flex font-sans overflow-hidden">
             <Sidebar />
 
-            <main className="flex-1 pl-20 lg:pl-72 h-screen overflow-y-auto">
-                <div className="max-w-4xl mx-auto p-8 lg:p-12">
-                    <header className="mb-12 flex flex-col md:flex-row md:items-end justify-between gap-6">
-                        <div>
+            <main className="flex-1 pl-0 lg:pl-72 min-h-screen pt-16 lg:pt-0 transition-all duration-300 overflow-y-auto">
+                <div className="max-w-4xl mx-auto p-6 lg:p-12">
+                    <header className="mb-8 lg:mb-12 flex flex-col md:flex-row md:items-end justify-between gap-6 text-center md:text-left">
+                        <div className="w-full md:w-auto">
                             <h1 className="text-4xl font-black tracking-tight mb-3 text-white uppercase">Alerts Center</h1>
-                            <p className="text-muted font-medium">Real-time intelligence on your career journey.</p>
+                            <p className="text-muted font-medium text-sm sm:text-base">Real-time intelligence on your career journey.</p>
                         </div>
 
-                        <div className="flex bg-white/5 p-1.5 rounded-2xl border border-white/5">
+                        <div className="flex bg-white/5 p-1.5 rounded-2xl border border-white/5 overflow-x-auto max-w-full mx-auto md:mx-0 shrink-0">
                             <button
                                 onClick={() => setFilter('all')}
                                 className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${filter === 'all' ? 'bg-primary text-white shadow-lg' : 'text-muted hover:text-white'}`}

@@ -18,7 +18,7 @@ async function getBrowserInstance(): Promise<{ browser: Browser; isRemote: boole
 
     if (token) {
         console.log('Connecting to remote browser via Browserless.io...')
-        const browser = await chromium.connectOverCDP(`wss://production-sfo.browserless.io/playwright?token=${token}`)
+        const browser = await chromium.connect(`wss://production-sfo.browserless.io/chromium/playwright?token=${token}`)
         return { browser, isRemote: true }
     }
 

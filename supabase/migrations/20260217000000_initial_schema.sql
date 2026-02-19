@@ -41,6 +41,7 @@ alter table tailored_documents enable row level security;
 
 -- Policies
 create policy "Users can view their own profile" on profiles for select using (auth.uid() = id);
+create policy "Users can insert their own profile" on profiles for insert with check (auth.uid() = id);
 create policy "Users can update their own profile" on profiles for update using (auth.uid() = id);
 create policy "Anyone can view jobs" on jobs for select using (true);
 create policy "Users can manage their own tailored docs" on tailored_documents for all using (auth.uid() = user_id);

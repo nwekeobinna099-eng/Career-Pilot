@@ -1,7 +1,7 @@
 'use client'
 
 import React from 'react'
-import { ExternalLink, Wand2, CheckCircle2, Circle, Clock, Building2, MapPin } from 'lucide-react'
+import { ExternalLink, Wand2, CheckCircle2, Clock, Building2, MapPin } from 'lucide-react'
 
 interface JobCardProps {
     job: {
@@ -15,9 +15,10 @@ interface JobCardProps {
     }
     status: 'new' | 'tailored' | 'applied'
     onTailor: (id: string) => void
+    isTailoring?: boolean
 }
 
-const JobCard: React.FC<JobCardProps> = ({ job, status, onTailor }) => {
+const JobCard: React.FC<JobCardProps> = ({ job, status, onTailor, isTailoring }) => {
     const statusStyles = {
         new: {
             label: 'New Listing',
@@ -80,10 +81,15 @@ const JobCard: React.FC<JobCardProps> = ({ job, status, onTailor }) => {
                 {status !== 'applied' && (
                     <button
                         onClick={() => onTailor(job.id)}
-                        className="flex items-center gap-2 px-4 py-2 bg-white/5 hover:bg-primary hover:text-white rounded-xl text-xs font-black transition-all cursor-pointer group/btn"
+                        disabled={isTailoring}
+                        className="flex items-center gap-2 px-4 py-2 bg-white/5 hover:bg-primary hover:text-white rounded-xl text-xs font-black transition-all cursor-pointer group/btn disabled:opacity-50"
                     >
-                        <Wand2 size={14} className="group-hover/btn:animate-pulse" />
-                        Tailor with AI
+                        {isTailoring ? (
+                            <Clock size={14} className="animate-spin" />
+                        ) : (
+                            <Wand2 size={14} className="group-hover/btn:animate-pulse" />
+                        )}
+                        {isTailoring ? 'TAILORING...' : 'Tailor with AI'}
                     </button>
                 )}
             </div>

@@ -1,12 +1,15 @@
 'use client'
 
 import React, { useEffect, useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabaseClient'
 import JobCard from '@/components/JobCard'
-import { LayoutDashboard, Briefcase, User, Search, RefreshCcw, Bell, Settings, LogOut, ChevronRight, Filter, Zap, Clock } from 'lucide-react'
-import Link from 'next/link'
+import Sidebar from '@/components/Sidebar'
+import { Search, RefreshCcw, Filter, Clock } from 'lucide-react'
+import { toast } from 'sonner'
 
 export default function DashboardPage() {
+    const router = useRouter()
     const [jobs, setJobs] = useState<any[]>([])
     const [loading, setLoading] = useState(true)
     const [refreshing, setRefreshing] = useState(false)
@@ -14,38 +17,133 @@ export default function DashboardPage() {
     const [locationQuery, setLocationQuery] = useState('Dublin')
     const [platform, setPlatform] = useState('indeed')
     const [dateFilter, setDateFilter] = useState('all')
+    const [page, setPage] = useState(0)
+    const [hasMore, setHasMore] = useState(true)
+    const pageSize = 20
+    const [tailoringId, setTailoringId] = useState<string | null>(null)
 
-    const fetchJobs = async () => {
-        setLoading(true)
-        const { data } = await supabase
+    const fetchJobs = async (pageNum = 0, isLoadMore = false) => {
+        if (!isLoadMore) {
+            setRefreshing(true)
+            if (pageNum === 0) setLoading(true)
+        }
+        const from = pageNum * pageSize
+        const to = (pageNum + 1) * pageSize - 1
+
+        const { data, error, count } = await supabase
             .from('jobs')
-            .select('*, tailored_documents(status)')
+            .select('*, tailored_documents(status)', { count: 'exact' })
             .order('scraped_at', { ascending: false })
+            .range(from, to)
 
-        setJobs(data || [])
+        if (error) {
+            console.error('Fetch error:', error)
+        } else {
+            if (isLoadMore) {
+                setJobs(prev => [...prev, ...(data || [])])
+            } else {
+                setJobs(data || [])
+            }
+            setHasMore(count ? (pageNum + 1) * pageSize < count : false)
+        }
+        setRefreshing(false)
         setLoading(false)
     }
 
+    const handleLoadMore = () => {
+        const nextPage = page + 1
+        setPage(nextPage)
+        fetchJobs(nextPage, true)
+    }
+
     useEffect(() => {
-        fetchJobs()
+        const checkAuthAndFetch = async () => {
+            const { data: { user } } = await supabase.auth.getUser()
+            if (!user) {
+                router.push('/login')
+                return
+            }
+            fetchJobs(0)
+        }
+        checkAuthAndFetch()
     }, [])
 
     const handleTailor = async (jobId: string) => {
-        console.log('Tailoring job:', jobId)
-        alert('AI Tailoring initiated! In a live environment, this calls /api/tailor')
+        setTailoringId(jobId)
+        try {
+            const { data: { user } } = await supabase.auth.getUser()
+            if (!user) {
+                toast.error('Please sign in to tailor applications.')
+                return
+            }
+
+            const { data: { session } } = await supabase.auth.getSession()
+            const response = await fetch('/api/tailor', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'Authorization': `Bearer ${session?.access_token}`
+                },
+                body: JSON.stringify({ profileId: user.id, jobId })
+            })
+
+            const rawText = await response.text()
+            let responseData
+            try {
+                responseData = JSON.parse(rawText)
+            } catch (e) {
+                throw new Error(`Server error (${response.status})`)
+            }
+
+            if (!response.ok) {
+                throw new Error(responseData.error || 'Failed to tailor application')
+            }
+
+            toast.success('AI Tailoring complete! Check your applications.')
+            await fetchJobs()
+        } catch (error: any) {
+            console.error('Tailoring error:', error)
+            toast.error(`Error: ${error.message}`)
+        } finally {
+            setTailoringId(null)
+        }
     }
 
     const handleScrape = async () => {
         setRefreshing(true)
         try {
-            await fetch('/api/scrape', {
+            const { data: { session } } = await supabase.auth.getSession()
+            const response = await fetch('/api/scrape', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${session?.access_token}`
+                },
                 body: JSON.stringify({ query: searchQuery, location: locationQuery, platform, dateFilter })
             })
+
+            const data = await response.json()
+
+            if (!response.ok) {
+                if (response.status === 429) {
+                    toast.error('Rate limit reached. Please wait a few minutes before searching again.')
+                } else {
+                    toast.error(data.error || 'Failed to search for jobs. Please try again.')
+                }
+                return
+            }
+
+            if (data.count === 0) {
+                toast.info('No new jobs found for this search. Try different keywords or location.')
+            } else {
+                toast.success(`Found ${data.count} new job${data.count > 1 ? 's' : ''}!`)
+            }
+
             await fetchJobs()
-        } catch (e) {
-            console.error(e)
+        } catch (e: any) {
+            console.error('Scrape error:', e)
+            toast.error('Failed to search for jobs. Please check your connection and try again.')
         } finally {
             setRefreshing(false)
         }
@@ -53,44 +151,9 @@ export default function DashboardPage() {
 
     return (
         <div className="min-h-screen bg-background text-foreground flex font-sans">
-            {/* Slim Premium Sidebar */}
-            <aside className="fixed left-0 top-0 h-full w-20 lg:w-72 glass border-r border-white/5 flex flex-col items-center lg:items-start py-8 z-50">
-                <div className="px-6 mb-12 flex items-center gap-3">
-                    <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center shadow-lg shadow-primary/20">
-                        <Zap size={20} className="text-white fill-white" />
-                    </div>
-                    <span className="text-xl font-black tracking-tighter uppercase hidden lg:block">CareerPilot</span>
-                </div>
+            <Sidebar />
 
-                <nav className="flex-1 w-full px-4 space-y-2">
-                    {[
-                        { icon: <LayoutDashboard size={22} />, label: 'Dashboard', active: true, href: '/dashboard' },
-                        { icon: <Briefcase size={22} />, label: 'My Applications', active: false, href: '#' },
-                        { icon: <User size={22} />, label: 'Universal Profile', active: false, href: '/profile' },
-                        { icon: <Bell size={22} />, label: 'Alerts', active: false, href: '#' },
-                    ].map((item, i) => (
-                        <Link
-                            key={i}
-                            href={item.href}
-                            className={`flex items-center gap-4 p-4 rounded-2xl transition-all cursor-pointer group ${item.active ? 'bg-primary/10 text-primary font-bold shadow-sm' : 'text-muted hover:bg-white/5 hover:text-white'}`}
-                        >
-                            <div className={`${item.active ? 'text-primary' : 'group-hover:text-white'}`}>{item.icon}</div>
-                            <span className="hidden lg:block text-sm uppercase tracking-wide">{item.label}</span>
-                        </Link>
-                    ))}
-                </nav>
-
-                <div className="w-full px-4 mt-auto pt-8 border-t border-white/5 space-y-2">
-                    <button className="flex items-center gap-4 p-4 rounded-2xl text-muted hover:bg-white/5 hover:text-white transition-all w-full cursor-pointer">
-                        <Settings size={22} />
-                        <span className="hidden lg:block text-sm uppercase tracking-wide">Settings</span>
-                    </button>
-                    <button className="flex items-center gap-4 p-4 rounded-2xl text-muted hover:bg-red-500/10 hover:text-red-400 transition-all w-full cursor-pointer">
-                        <LogOut size={22} />
-                        <span className="hidden lg:block text-sm uppercase tracking-wide font-bold">Sign Out</span>
-                    </button>
-                </div>
-            </aside>
+            {/* Main Content */}
 
             {/* Main Content */}
             <main className="flex-1 pl-20 lg:pl-72 min-h-screen">
@@ -111,6 +174,7 @@ export default function DashboardPage() {
                             <div className="flex-1 min-w-[240px] glass flex items-center px-4 py-3 rounded-2xl border border-white/10 focus-within:ring-2 focus-within:ring-primary/50 transition-all">
                                 <Search size={18} className="text-muted mr-3" />
                                 <input
+                                    aria-label="Search position keywords"
                                     type="text"
                                     placeholder="Position keywords..."
                                     className="bg-transparent border-none text-sm focus:outline-none w-full font-medium"
@@ -118,9 +182,21 @@ export default function DashboardPage() {
                                     onChange={(e) => setSearchQuery(e.target.value)}
                                 />
                             </div>
+                            <div className="flex-1 min-w-[200px] glass flex items-center px-4 py-3 rounded-2xl border border-white/10 focus-within:ring-2 focus-within:ring-primary/50 transition-all">
+                                <div className="text-primary mr-3 shrink-0 uppercase text-[10px] font-black tracking-widest">Loc</div>
+                                <input
+                                    aria-label="Search location"
+                                    type="text"
+                                    placeholder="City or Remote..."
+                                    className="bg-transparent border-none text-sm focus:outline-none w-full font-medium"
+                                    value={locationQuery}
+                                    onChange={(e) => setLocationQuery(e.target.value)}
+                                />
+                            </div>
                             <div className="glass flex items-center px-4 py-3 rounded-2xl border border-white/10 focus-within:ring-2 focus-within:ring-primary/50 transition-all">
                                 <Filter size={18} className="text-muted mr-3" />
                                 <select
+                                    aria-label="Filter by platform"
                                     className="bg-transparent border-none text-sm focus:outline-none text-white/80 cursor-pointer appearance-none pr-8 font-bold"
                                     value={platform}
                                     onChange={(e) => setPlatform(e.target.value)}
@@ -132,6 +208,7 @@ export default function DashboardPage() {
                             <div className="glass flex items-center px-4 py-3 rounded-2xl border border-white/10 focus-within:ring-2 focus-within:ring-primary/50 transition-all">
                                 <Clock size={18} className="text-muted mr-3" />
                                 <select
+                                    aria-label="Filter by date"
                                     className="bg-transparent border-none text-sm focus:outline-none text-white/80 cursor-pointer appearance-none pr-8 font-bold"
                                     value={dateFilter}
                                     onChange={(e) => setDateFilter(e.target.value)}
@@ -170,6 +247,7 @@ export default function DashboardPage() {
                                             job={job}
                                             status={job.tailored_documents?.[0]?.status === 'final' ? 'applied' : job.tailored_documents?.length > 0 ? 'tailored' : 'new'}
                                             onTailor={handleTailor}
+                                            isTailoring={tailoringId === job.id}
                                         />
                                     ))}
                                 </div>
@@ -183,6 +261,18 @@ export default function DashboardPage() {
                                 </div>
                             )}
                         </>
+                    )}
+                    {/* Load More Control */}
+                    {hasMore && jobs.length > 0 && (
+                        <div className="mt-12 flex justify-center pb-20">
+                            <button
+                                onClick={handleLoadMore}
+                                disabled={refreshing}
+                                className="px-12 py-5 glass border border-white/10 rounded-2xl font-black text-sm uppercase tracking-widest text-primary hover:bg-white/5 transition-all disabled:opacity-50"
+                            >
+                                {refreshing ? 'Loading Mission Data...' : 'Intercept More Opportunities'}
+                            </button>
+                        </div>
                     )}
                 </div>
             </main>

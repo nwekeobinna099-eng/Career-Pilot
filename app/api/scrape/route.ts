@@ -75,7 +75,19 @@ export async function POST(req: Request) {
 
         return NextResponse.json({ count: jobs.length, jobs })
     } catch (error: any) {
-        console.error('Critical Scrape API Error:', error)
+        console.error('Critical Scrape API Error:', {
+            message: error.message,
+            stack: error.stack,
+            cause: error.cause
+        })
+
+        // Check for common production errors (e.g. missing Playwright binaries)
+        if (error.message?.includes('executable') || error.message?.includes('browser')) {
+            return NextResponse.json({
+                error: 'Scraping engine unavailable in this environment. Please ensure browser binaries are installed or use a remote browser service.'
+            }, { status: 501 })
+        }
+
         return NextResponse.json({ error: 'Internal server error during scraping mission' }, { status: 500 })
     }
 }

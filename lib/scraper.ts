@@ -1,4 +1,4 @@
-import { chromium, Browser, Page } from 'playwright'
+import { chromium, Browser, BrowserContext, Page } from 'playwright'
 
 export interface JobListing {
     title: string
@@ -9,17 +9,36 @@ export interface JobListing {
     platform: string
 }
 
-export async function scrapeIndeed(searchQuery: string, location: string = 'Dublin', dateFilter: string = 'all'): Promise<JobListing[]> {
-    const browser: Browser = await chromium.launch({ headless: true })
-    const context = await browser.newContext({
-        userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36'
-    })
-    const page: Page = await context.newPage()
+/**
+ * Connects to a browser instance.
+ * Automatically switches between remote Browserless.io and local Chromium.
+ */
+async function getBrowserInstance(): Promise<{ browser: Browser; isRemote: boolean }> {
+    const token = process.env.BROWSERLESS_TOKEN
 
-    const dateParam = dateFilter === '24h' ? '&fromage=1' : dateFilter === '3d' ? '&fromage=3' : dateFilter === '7d' ? '&fromage=7' : ''
-    const url = `https://www.indeed.com/jobs?q=${encodeURIComponent(searchQuery)}&l=${encodeURIComponent(location)}${dateParam}`
+    if (token) {
+        console.log('Connecting to remote browser via Browserless.io...')
+        const browser = await chromium.connectOverCDP(`wss://production-sfo.browserless.io/playwright?token=${token}`)
+        return { browser, isRemote: true }
+    }
+
+    console.log('Launching local Chromium instance...')
+    const browser = await chromium.launch({ headless: true })
+    return { browser, isRemote: false }
+}
+
+export async function scrapeIndeed(searchQuery: string, location: string = 'Dublin', dateFilter: string = 'all'): Promise<JobListing[]> {
+    const { browser, isRemote } = await getBrowserInstance()
 
     try {
+        const context: BrowserContext = await browser.newContext({
+            userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36'
+        })
+        const page: Page = await context.newPage()
+
+        const dateParam = dateFilter === '24h' ? '&fromage=1' : dateFilter === '3d' ? '&fromage=3' : dateFilter === '7d' ? '&fromage=7' : ''
+        const url = `https://www.indeed.com/jobs?q=${encodeURIComponent(searchQuery)}&l=${encodeURIComponent(location)}${dateParam}`
+
         await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 60000 })
         await page.waitForSelector('.resultContent', { timeout: 15000 })
 
@@ -47,9 +66,10 @@ export async function scrapeIndeed(searchQuery: string, location: string = 'Dubl
             return results
         }, url)
 
-        // Deep dive for descriptions (limit to 10)
+        // Deep dive for descriptions (limit to 5 in remote mode to save credits/time)
+        const limit = isRemote ? 5 : 10
         const detailedJobs: JobListing[] = []
-        for (const job of initialJobs.slice(0, 10)) {
+        for (const job of initialJobs.slice(0, limit)) {
             try {
                 const detailPage = await context.newPage()
                 await detailPage.goto(job.url, { waitUntil: 'domcontentloaded', timeout: 30000 })
@@ -74,16 +94,17 @@ export async function scrapeIndeed(searchQuery: string, location: string = 'Dubl
 }
 
 export async function scrapeLinkedIn(searchQuery: string, location: string = 'Dublin', dateFilter: string = 'all'): Promise<JobListing[]> {
-    const browser: Browser = await chromium.launch({ headless: true })
-    const context = await browser.newContext({
-        userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36'
-    })
-    const page: Page = await context.newPage()
-
-    const dateParam = dateFilter === '24h' ? '&f_TPR=r86400' : dateFilter === '3d' ? '&f_TPR=r259200' : dateFilter === '7d' ? '&f_TPR=r604800' : ''
-    const url = `https://www.linkedin.com/jobs/search?keywords=${encodeURIComponent(searchQuery)}&location=${encodeURIComponent(location)}${dateParam}`
+    const { browser, isRemote } = await getBrowserInstance()
 
     try {
+        const context: BrowserContext = await browser.newContext({
+            userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36'
+        })
+        const page: Page = await context.newPage()
+
+        const dateParam = dateFilter === '24h' ? '&f_TPR=r86400' : dateFilter === '3d' ? '&f_TPR=r259200' : dateFilter === '7d' ? '&f_TPR=r604800' : ''
+        const url = `https://www.linkedin.com/jobs/search?keywords=${encodeURIComponent(searchQuery)}&location=${encodeURIComponent(location)}${dateParam}`
+
         await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 60000 })
         await page.waitForSelector('.job-search-card', { timeout: 15000 })
 
@@ -111,14 +132,14 @@ export async function scrapeLinkedIn(searchQuery: string, location: string = 'Du
             return results
         }, url)
 
-        // Deep dive for descriptions (limit to 10)
+        // Deep dive for descriptions (limit to 5 in remote mode)
+        const limit = isRemote ? 5 : 10
         const detailedJobs: JobListing[] = []
-        for (const job of initialJobs.slice(0, 10)) {
+        for (const job of initialJobs.slice(0, limit)) {
             try {
                 const detailPage = await context.newPage()
                 await detailPage.goto(job.url, { waitUntil: 'domcontentloaded', timeout: 30000 })
                 const description = await detailPage.evaluate(() => {
-                    // LinkedIn guest view selectors
                     const descEl = document.querySelector('.description__text') ||
                         document.querySelector('.show-more-less-html__markup') ||
                         document.querySelector('.jobs-description')

@@ -10,6 +10,7 @@ export default function PlansPage() {
     const [usage, setUsage] = useState<any>(null)
     const [loading, setLoading] = useState(true)
     const [upgrading, setUpgrading] = useState(false)
+    const [portaling, setPortaling] = useState(false)
 
     useEffect(() => {
         const fetchUsage = async () => {
@@ -52,6 +53,33 @@ export default function PlansPage() {
             alert(error.message || 'Something went wrong. Please try again or contact support.')
         } finally {
             setUpgrading(false)
+        }
+    }
+
+    const handleViewBilling = async () => {
+        setPortaling(true)
+        try {
+            const { data: { session } } = await supabase.auth.getSession()
+
+            const response = await fetch('/api/portal', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${session?.access_token}`
+                }
+            })
+            const data = await response.json()
+
+            if (data.url) {
+                window.location.href = data.url
+            } else {
+                throw new Error(data.error || 'Failed to open billing portal')
+            }
+        } catch (error: any) {
+            console.error('Portal error:', error)
+            alert(error.message || 'Something went wrong. Please ensure you have an active subscription profile.')
+        } finally {
+            setPortaling(false)
         }
     }
 
@@ -260,9 +288,13 @@ export default function PlansPage() {
                             <p className="text-sm text-muted font-medium">All billing is handled via encrypted Stripe protocol. Your intelligence data and mission logs remain private and secure.</p>
                         </div>
                         <div className="md:ml-auto">
-                            <button className="flex items-center gap-2 text-primary font-black uppercase tracking-widest text-xs hover:text-primary/80 transition-all">
-                                View Billing History
-                                <ArrowRight size={16} />
+                            <button
+                                onClick={handleViewBilling}
+                                disabled={portaling}
+                                className={`flex items-center gap-2 text-primary font-black uppercase tracking-widest text-xs hover:text-primary/80 transition-all ${portaling ? 'opacity-50 cursor-not-allowed' : ''}`}
+                            >
+                                {portaling ? 'Accessing...' : 'View Billing History'}
+                                <ArrowRight size={16} className={portaling ? 'animate-pulse' : ''} />
                             </button>
                         </div>
                     </div>

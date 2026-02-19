@@ -9,6 +9,7 @@ import { PLANS, checkUsage } from '@/lib/plans'
 export default function PlansPage() {
     const [usage, setUsage] = useState<any>(null)
     const [loading, setLoading] = useState(true)
+    const [upgrading, setUpgrading] = useState(false)
 
     useEffect(() => {
         const fetchUsage = async () => {
@@ -27,6 +28,27 @@ export default function PlansPage() {
         }
         fetchUsage()
     }, [])
+    const handleUpgrade = async () => {
+        setUpgrading(true)
+        try {
+            const response = await fetch('/api/checkout', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' }
+            })
+            const data = await response.json()
+
+            if (data.url) {
+                window.location.href = data.url
+            } else {
+                throw new Error(data.error || 'Failed to create checkout session')
+            }
+        } catch (error: any) {
+            console.error('Upgrade error:', error)
+            alert(error.message || 'Something went wrong. Please try again or contact support.')
+        } finally {
+            setUpgrading(false)
+        }
+    }
 
     const UsageBar = ({ label, used, limit, icon: Icon }: any) => {
         const percentage = limit === Infinity ? 0 : Math.min((used / limit) * 100, 100)
@@ -175,8 +197,19 @@ export default function PlansPage() {
                                     <span>Advanced Analytics</span>
                                 </li>
                             </ul>
-                            <button className={`w-full py-4 rounded-2xl text-xs font-black uppercase tracking-widest transition-all shadow-lg shadow-primary/20 ${usage?.plan === 'pro' ? 'bg-primary/20 text-primary pointer-events-none' : 'bg-primary text-white hover:bg-primary/90'}`}>
-                                {usage?.plan === 'pro' ? 'Active Mission' : 'Upgrade Now'}
+                            <button
+                                onClick={handleUpgrade}
+                                disabled={usage?.plan === 'pro' || upgrading}
+                                className={`w-full py-4 rounded-2xl text-xs font-black uppercase tracking-widest transition-all shadow-lg shadow-primary/20 flex items-center justify-center gap-2 ${usage?.plan === 'pro' ? 'bg-primary/20 text-primary pointer-events-none' : 'bg-primary text-white hover:bg-primary/90'} ${(usage?.plan === 'pro' || upgrading) ? 'opacity-50 cursor-not-allowed' : ''}`}
+                            >
+                                {upgrading ? (
+                                    <>
+                                        <Zap size={14} className="animate-pulse" />
+                                        Inhibiting...
+                                    </>
+                                ) : (
+                                    usage?.plan === 'pro' ? 'Active Mission' : 'Upgrade Now'
+                                )}
                             </button>
                         </div>
 

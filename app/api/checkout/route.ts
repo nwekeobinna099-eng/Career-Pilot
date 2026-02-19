@@ -40,17 +40,25 @@ export async function POST(req: Request) {
             })
         }
 
+        const priceId = process.env.STRIPE_PRICE_ID || PRO_PRICE_ID
+
+        if (priceId === 'price_1Q...') {
+            return NextResponse.json({
+                error: 'Stripe is not fully configured. MISSION COMMANDER: Please set STRIPE_PRICE_ID in environment variables.'
+            }, { status: 400 })
+        }
+
         const session = await stripe.checkout.sessions.create({
             customer: customerId,
             line_items: [
                 {
-                    price: process.env.STRIPE_PRICE_ID || PRO_PRICE_ID,
+                    price: priceId,
                     quantity: 1,
                 },
             ],
             mode: 'subscription',
-            success_url: `${process.env.NEXT_PUBLIC_APP_URL}/dashboard?success=true`,
-            cancel_url: `${process.env.NEXT_PUBLIC_APP_URL}/#pricing`,
+            success_url: `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/dashboard?success=true`,
+            cancel_url: `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/plans`,
             metadata: {
                 userId: user.id
             }

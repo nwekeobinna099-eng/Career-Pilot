@@ -27,7 +27,7 @@ async function getBrowserInstance(): Promise<{ browser: Browser; isRemote: boole
     return { browser, isRemote: false }
 }
 
-export async function scrapeIndeed(searchQuery: string, location: string = 'Dublin', dateFilter: string = 'all'): Promise<JobListing[]> {
+export async function scrapeIndeed(searchQuery: string, location: string, dateFilter: string = 'all'): Promise<JobListing[]> {
     const { browser, isRemote } = await getBrowserInstance()
 
     try {
@@ -93,7 +93,7 @@ export async function scrapeIndeed(searchQuery: string, location: string = 'Dubl
     }
 }
 
-export async function scrapeLinkedIn(searchQuery: string, location: string = 'Dublin', dateFilter: string = 'all'): Promise<JobListing[]> {
+export async function scrapeLinkedIn(searchQuery: string, location: string, dateFilter: string = 'all'): Promise<JobListing[]> {
     const { browser, isRemote } = await getBrowserInstance()
 
     try {
@@ -161,7 +161,7 @@ export async function scrapeLinkedIn(searchQuery: string, location: string = 'Du
     }
 }
 
-export async function scrapeJobs(searchQuery: string, location: string = 'Dublin', platform: string = 'indeed', dateFilter: string = 'all'): Promise<JobListing[]> {
+export async function scrapeJobs(searchQuery: string, location: string, platform: string = 'indeed', dateFilter: string = 'all'): Promise<JobListing[]> {
     switch (platform.toLowerCase()) {
         case 'linkedin':
             return scrapeLinkedIn(searchQuery, location, dateFilter)

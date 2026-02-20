@@ -11,7 +11,7 @@ const uuid = z.string().uuid('Invalid ID format')
 // /api/scrape
 export const scrapeSchema = z.object({
     query: z.string().min(1, 'Query is required').max(200, 'Query too long'),
-    location: z.string().max(100, 'Location too long').default('Dublin'),
+    location: z.string().min(1, 'Location is required').max(100, 'Location too long'),
     platform: z.enum(['indeed', 'linkedin']).default('indeed'),
     dateFilter: z.enum(['all', '24h', '3d', '7d']).default('all'),
 })

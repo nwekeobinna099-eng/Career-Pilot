@@ -3,10 +3,14 @@
 import React from 'react'
 import Link from 'next/link'
 import { ArrowRight, Bot, Star } from 'lucide-react'
+import SplineScene from './SplineScene'
 
 export default function HeroSection() {
     return (
-        <section className="relative pt-32 pb-20 md:pt-48 md:pb-32 overflow-hidden px-6">
+        <section className="relative pt-32 pb-20 md:pt-48 md:pb-32 overflow-hidden px-6 min-h-[80vh] flex items-center">
+            {/* 3D Scene Integration */}
+            <SplineScene />
+
             <div className="max-w-4xl mx-auto text-center relative z-10">
                 <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-white/60 text-xs font-bold uppercase tracking-widest mb-8 hover:bg-white/10 transition-colors cursor-default">
                     <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />

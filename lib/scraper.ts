@@ -12,13 +12,19 @@ export interface JobListing {
 /**
  * Connects to a browser instance.
  * Automatically switches between remote Browserless.io and local Chromium.
+ * Added support for platform-specific rotation and stealth flags.
  */
-async function getBrowserInstance(): Promise<{ browser: Browser; isRemote: boolean }> {
+async function getBrowserInstance(platform?: string): Promise<{ browser: Browser; isRemote: boolean }> {
     const token = process.env.BROWSERLESS_TOKEN
 
     if (token) {
-        console.log('Connecting to remote browser via Browserless.io...')
-        const browser = await chromium.connect(`wss://production-sfo.browserless.io/chromium/playwright?token=${token}`)
+        // Indeed is extremely aggressive with US datacenter IPs. 
+        // London often has different rate limits and flagging.
+        const region = platform?.toLowerCase() === 'indeed' ? 'production-lon' : 'production-sfo'
+        console.log(`Connecting to remote browser via Browserless.io (${region})...`)
+
+        // Added --disable-blink-features=AutomationControlled to hide Playwright presence further
+        const browser = await chromium.connect(`wss://${region}.browserless.io/chromium/playwright?token=${token}&stealth&--disable-blink-features=AutomationControlled`)
         return { browser, isRemote: true }
     }
 
@@ -28,26 +34,14 @@ async function getBrowserInstance(): Promise<{ browser: Browser; isRemote: boole
 }
 
 export async function scrapeIndeed(searchQuery: string, location: string, dateFilter: string = 'all'): Promise<JobListing[]> {
-    const { browser, isRemote } = await getBrowserInstance()
+    const { browser, isRemote } = await getBrowserInstance('indeed')
 
     try {
         const context: BrowserContext = await browser.newContext({
             userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36',
             viewport: { width: 1280, height: 800 },
-            deviceScaleFactor: 1,
         })
         const page: Page = await context.newPage()
-
-        // Extra stealth: set extra headers
-        await page.setExtraHTTPHeaders({
-            'Accept-Language': 'en-US,en;q=0.9',
-            'Upgrade-Insecure-Requests': '1',
-            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
-            'Sec-Fetch-Site': 'none',
-            'Sec-Fetch-Mode': 'navigate',
-            'Sec-Fetch-User': '?1',
-            'Sec-Fetch-Dest': 'document',
-        })
 
         const dateParam = dateFilter === '24h' ? '&fromage=1' : dateFilter === '3d' ? '&fromage=3' : dateFilter === '7d' ? '&fromage=7' : ''
         const url = `https://www.indeed.com/jobs?q=${encodeURIComponent(searchQuery)}&l=${encodeURIComponent(location)}${dateParam}`
@@ -55,9 +49,13 @@ export async function scrapeIndeed(searchQuery: string, location: string, dateFi
         console.log(`Navigating to Indeed: ${url}`)
         await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 60000 })
 
+        // Wait longer for Cloudflare to potentially resolve
+        console.log('Waiting 10 seconds for Cloudflare/scripts...')
+        await page.waitForTimeout(10000)
+
         // Wait for results or check for CAPTCHA
         try {
-            await page.waitForSelector('.job_seen_beacon, #challenge-running, #challenge-stage', { timeout: 20000 })
+            await page.waitForSelector('.job_seen_beacon, .resultContent, .jobTitle, #challenge-running, #challenge-stage', { timeout: 15000 })
         } catch (e) {
             console.warn('Timeout waiting for job cards or CAPTCHA.')
         }
@@ -74,22 +72,48 @@ export async function scrapeIndeed(searchQuery: string, location: string, dateFi
         }
 
         const initialJobs: JobListing[] = await page.evaluate((platformUrl) => {
-            const cardElements = document.querySelectorAll('.job_seen_beacon')
+            // Priority 1: Check for Mosaic JSON data (most robust)
+            const scriptTag = Array.from(document.querySelectorAll('script')).find(s => s.textContent?.includes('window.mosaic.providerData["mosaic-provider-jobcards"]'))
+            if (scriptTag?.textContent) {
+                try {
+                    const match = scriptTag.textContent.match(/window\.mosaic\.providerData\["mosaic-provider-jobcards"\]\s*=\s*({.*?});/s)
+                    if (match && match[1]) {
+                        const data = JSON.parse(match[1])
+                        const jobCards = data.metaData?.mosaicProviderJobCardsModel?.results || []
+                        if (jobCards.length > 0) {
+                            return jobCards.map((job: any) => ({
+                                title: job.title || 'No Title',
+                                company: job.company || 'Unknown Company',
+                                location: job.formattedLocation || 'Remote/Unknown',
+                                description: '',
+                                url: job.viewJobLink ? new URL(job.viewJobLink, 'https://www.indeed.com').href : platformUrl,
+                                platform: 'Indeed'
+                            }))
+                        }
+                    }
+                } catch (e) {
+                    console.error('Error parsing mosaic JSON:', e)
+                }
+            }
+
+            // Priority 2: DOM selectors (classic)
+            const cardElements = document.querySelectorAll('.job_seen_beacon, .resultContent')
             const results: JobListing[] = []
 
             cardElements.forEach((card) => {
-                const titleEl = card.querySelector('h2.jobTitle a') || card.querySelector('h2.jobTitle span[id^="jobTitle"]')
-                const companyEl = card.querySelector('[data-testid="company-name"]') || card.querySelector('.companyName')
-                const locationEl = card.querySelector('[data-testid="text-location"]') || card.querySelector('.companyLocation')
-                const linkEl = card.querySelector('a.jcs-JobTitle') || card.querySelector('h2.jobTitle a')
+                const titleEl = card.querySelector('h2.jobTitle a') || card.querySelector('h2.jobTitle span[id^="jobTitle"]') || card.querySelector('a')
+                const companyEl = card.querySelector('[data-testid="company-name"]') || card.querySelector('.companyName') || card.querySelector('.company')
+                const locationEl = card.querySelector('[data-testid="text-location"]') || card.querySelector('.companyLocation') || card.querySelector('.location')
+                const linkEl = card.querySelector('a.jcs-JobTitle') || card.querySelector('h2.jobTitle a') || card.querySelector('a')
 
                 if (titleEl && companyEl) {
+                    const url = linkEl?.getAttribute('href')
                     results.push({
                         title: titleEl.textContent?.trim() || 'No Title',
                         company: companyEl.textContent?.trim() || 'Unknown Company',
                         location: locationEl?.textContent?.trim() || 'Remote/Unknown',
                         description: '',
-                        url: linkEl ? new URL(linkEl.getAttribute('href') || '', 'https://www.indeed.com').href : platformUrl,
+                        url: url ? new URL(url, 'https://www.indeed.com').href : platformUrl,
                         platform: 'Indeed'
                     })
                 }
@@ -125,11 +149,11 @@ export async function scrapeIndeed(searchQuery: string, location: string, dateFi
 }
 
 export async function scrapeLinkedIn(searchQuery: string, location: string, dateFilter: string = 'all'): Promise<JobListing[]> {
-    const { browser, isRemote } = await getBrowserInstance()
+    const { browser, isRemote } = await getBrowserInstance('linkedin')
 
     try {
         const context: BrowserContext = await browser.newContext({
-            userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36'
+            userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36'
         })
         const page: Page = await context.newPage()
 
